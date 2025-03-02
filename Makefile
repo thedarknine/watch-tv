@@ -5,7 +5,10 @@ SHELL := /bin/bash
 
 ## DEVELOP ============================================================
 
-## Install dependencies
+## Run CS Fixer
+cs:
+	PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix src
+
 
 ## DOCKER =============================================================
 
