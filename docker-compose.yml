@@ -1,0 +1,70 @@
+services:
+  app:
+    container_name: wtv-app
+    build:
+      context: .docker
+      dockerfile: php.dockerfile
+    restart: unless-stopped
+    expose:
+      - "9000"
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - wtv-ntwk
+    depends_on:
+      - db
+
+  db:
+    container_name: wtv-db
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=symfony
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    networks:
+      - wtv-ntwk
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./.docker/volumes/logs/mysql:/var/log/mysql
+      - ./.docker/mysql/ql:/docker-entrypoint-initdb.d
+
+  engine:
+    container_name: wtv-server
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www/html
+      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - app
+    networks:
+      - wtv-ntwk
+
+  phpmyadmin:
+    image: arm64v8/phpmyadmin:latest
+    container_name: wtv-pma
+    ports:
+        - 8088:80
+    depends_on:
+        - db
+    restart: unless-stopped
+    environment:
+        PMA_HOST: db
+        PMA_USER: ${MYSQL_USER}
+        PMA_PASSWORD: ${MYSQL_PASSWORD}
+        PMA_PORT: 3306
+        PMA_ARBITRARY: 1
+    networks:
+      - wtv-ntwk
+
+networks:
+  wtv-ntwk:
+    driver: bridge
+
+volumes:
+  db-data:
