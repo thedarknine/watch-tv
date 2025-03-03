@@ -11,6 +11,8 @@
 namespace App\Entity;
 
 use App\Repository\ChannelRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChannelRepository::class)]
@@ -41,6 +43,17 @@ class Channel
 
     #[ORM\Column]
     private ?bool $favorite = false;
+
+    /**
+     * @var Collection<int, Program>
+     */
+    #[ORM\OneToMany(targetEntity: Program::class, mappedBy: 'channel')]
+    private Collection $programs;
+
+    public function __construct()
+    {
+        $this->programs = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -127,6 +140,36 @@ class Channel
     public function setFavorite(bool $favorite): static
     {
         $this->favorite = $favorite;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Program>
+     */
+    public function getPrograms(): Collection
+    {
+        return $this->programs;
+    }
+
+    public function addProgram(Program $program): static
+    {
+        if (!$this->programs->contains($program)) {
+            $this->programs->add($program);
+            $program->setChannel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProgram(Program $program): static
+    {
+        if ($this->programs->removeElement($program)) {
+            // set the owning side to null (unless already changed)
+            if ($program->getChannel() === $this) {
+                $program->setChannel(null);
+            }
+        }
 
         return $this;
     }

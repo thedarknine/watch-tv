@@ -26,7 +26,7 @@ final class InitProgramsController extends AbstractController
     {
     }
 
-    #[Route('/init/programs', name: 'app_init_programs')]
+    #[Route('/init/programs', name: 'app_init_programs', methods: ['GET'])]
     public function index(ChannelRepository $channelRepository, CategoryRepository $categoryRepository): Response
     {
         // Retrieve channels list

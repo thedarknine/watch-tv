@@ -10,58 +10,50 @@
 
 namespace App\Repository;
 
-use App\Entity\Channel;
+use App\Entity\Program;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Channel>
+ * @extends ServiceEntityRepository<Program>
  */
-class ChannelRepository extends ServiceEntityRepository
+class ProgramRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
     {
-        parent::__construct($registry, Channel::class);
+        parent::__construct($registry, Program::class);
         $this->entityManager = $entityManager;
     }
 
-    public function save(Channel $channel): void
+    public function save(Program $program): void
     {
-        $this->entityManager->persist($channel);
+        $this->entityManager->persist($program);
         $this->entityManager->flush();
-    }
-
-    public function findByFavorite(): array
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.favorite = :val')
-            ->setParameter('val', true)
-            ->orderBy('c.id', 'ASC')
-            ->getQuery()
-            ->getResult()
-        ;
+        $this->entityManager->clear();
+        unset($program);
+        gc_collect_cycles();
     }
 
     //    /**
-    //     * @return Channel[] Returns an array of Channel objects
+    //     * @return Program[] Returns an array of Program objects
     //     */
     //    public function findByExampleField($value): array
     //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
+    //        return $this->createQueryBuilder('p')
+    //            ->andWhere('p.exampleField = :val')
     //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
+    //            ->orderBy('p.id', 'ASC')
     //            ->setMaxResults(10)
     //            ->getQuery()
     //            ->getResult()
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Channel
+    //    public function findOneBySomeField($value): ?Program
     //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
+    //        return $this->createQueryBuilder('p')
+    //            ->andWhere('p.exampleField = :val')
     //            ->setParameter('val', $value)
     //            ->getQuery()
     //            ->getOneOrNullResult()
